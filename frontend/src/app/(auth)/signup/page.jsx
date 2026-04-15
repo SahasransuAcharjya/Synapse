@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -16,23 +16,38 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    if (form.password !== form.confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            password: form.password,
+          }),
         }
       );
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Login failed. Please try again.");
+        setError(data.message || "Registration failed. Please try again.");
         return;
       }
 
@@ -54,26 +69,38 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        {/* Logo / Brand */}
         <div className="auth-brand">
           <div className="brand-orb" />
           <h1 className="brand-name">Synapse</h1>
-          <p className="brand-tagline">Your calm space to breathe & reflect</p>
+          <p className="brand-tagline">Begin your journey to inner calm</p>
         </div>
 
-        <h2 className="auth-title">Welcome back</h2>
-        <p className="auth-subtitle">Sign in to continue your wellness journey</p>
+        <h2 className="auth-title">Create your account</h2>
+        <p className="auth-subtitle">A safe space crafted just for you</p>
 
         {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="name">Full name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              placeholder="Your name"
+              value={form.name}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="email">Email address</label>
             <input
               id="email"
               name="email"
               type="email"
-              autoComplete="email"
               required
               placeholder="you@example.com"
               value={form.email}
@@ -88,10 +115,23 @@ export default function LoginPage() {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              required
+              placeholder="Min. 6 characters"
+              value={form.password}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirm">Confirm password</label>
+            <input
+              id="confirm"
+              name="confirm"
+              type="password"
               required
               placeholder="••••••••"
-              value={form.password}
+              value={form.confirm}
               onChange={handleChange}
               className="form-input"
             />
@@ -102,18 +142,14 @@ export default function LoginPage() {
             disabled={loading}
             className="auth-btn"
           >
-            {loading ? (
-              <span className="btn-spinner" />
-            ) : (
-              "Sign In"
-            )}
+            {loading ? <span className="btn-spinner" /> : "Create Account"}
           </button>
         </form>
 
         <p className="auth-switch">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="auth-link">
-            Create one
+          Already have an account?{" "}
+          <Link href="/login" className="auth-link">
+            Sign in
           </Link>
         </p>
       </div>
@@ -165,8 +201,8 @@ export default function LoginPage() {
         }
 
         @keyframes pulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(160,140,200,0.4), 0 0 40px rgba(130,170,200,0.2); }
-          50% { transform: scale(1.06); box-shadow: 0 0 28px rgba(160,140,200,0.6), 0 0 56px rgba(130,170,200,0.3); }
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.06); }
         }
 
         .brand-name {
@@ -213,7 +249,7 @@ export default function LoginPage() {
         .auth-form {
           display: flex;
           flex-direction: column;
-          gap: 1.2rem;
+          gap: 1.1rem;
         }
 
         .form-group {
@@ -226,7 +262,6 @@ export default function LoginPage() {
           font-size: 0.85rem;
           font-weight: 500;
           color: #5a5070;
-          font-family: 'Georgia', serif;
         }
 
         .form-input {
@@ -243,9 +278,7 @@ export default function LoginPage() {
           box-sizing: border-box;
         }
 
-        .form-input::placeholder {
-          color: #b0a8c0;
-        }
+        .form-input::placeholder { color: #b0a8c0; }
 
         .form-input:focus {
           border-color: rgba(160, 130, 200, 0.6);
@@ -278,14 +311,8 @@ export default function LoginPage() {
           box-shadow: 0 6px 20px rgba(160, 130, 200, 0.4);
         }
 
-        .auth-btn:active:not(:disabled) {
-          transform: scale(0.97);
-        }
-
-        .auth-btn:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
+        .auth-btn:active:not(:disabled) { transform: scale(0.97); }
+        .auth-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
         .btn-spinner {
           width: 20px;
@@ -297,9 +324,7 @@ export default function LoginPage() {
           display: inline-block;
         }
 
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .auth-switch {
           text-align: center;
