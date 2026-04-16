@@ -121,6 +121,14 @@ body::after {
   animation: etherShift2 16s ease-in-out infinite alternate;
 }
 
+.liquid-ether {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
+}
+
 @keyframes etherShift {
   0%   { opacity: 1; transform: scale(1) translate(0, 0); }
   33%  { transform: scale(1.03) translate(1%, -1%); }
