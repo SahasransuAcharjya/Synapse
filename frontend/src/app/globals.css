@@ -121,6 +121,7 @@ body::after {
   animation: etherShift2 16s ease-in-out infinite alternate;
 }
 
+/* ─── Liquid Ether Background ───────────────────────────────────────────────── */
 .liquid-ether {
   position: fixed;
   inset: 0;
